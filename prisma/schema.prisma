@@ -1,0 +1,179 @@
+// Prisma Schema for Music Store Platform
+// This schema defines the database models for the music catalog browsing feature
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum ArtistRole {
+  primary
+  featured
+  collaborator
+}
+
+enum SongArtistRole {
+  primary
+  featured
+  producer
+  songwriter
+}
+
+enum ItemType {
+  album
+  song
+}
+
+// ============================================================================
+// CORE MODELS
+// ============================================================================
+
+// Artists - Musicians, producers, and other music creators
+model Artist {
+  id              String   @id @default(uuid())
+  name            String   @unique
+  bio             String?  @db.Text
+  profileImageUrl String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relationships
+  albumArtists AlbumArtist[]
+  songArtists  SongArtist[]
+
+  @@index([name])
+  @@map("artists")
+}
+
+// Albums - Collections of songs
+model Album {
+  id                   String   @id @default(uuid())
+  title                String
+  artworkUrl           String?
+  releaseDate          DateTime @db.Date
+  genre                String
+  description          String?  @db.Text
+  totalDurationSeconds Int      @default(0)
+  price                Decimal  @default(0.00) @db.Decimal(10, 2)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  // Relationships
+  songs        Song[]
+  albumArtists AlbumArtist[]
+  cartItems    CartItem[]
+
+  @@index([releaseDate])
+  @@index([genre])
+  @@map("albums")
+}
+
+// Songs - Individual music tracks
+model Song {
+  id              String   @id @default(uuid())
+  title           String
+  albumId         String?
+  trackNumber     Int?
+  durationSeconds Int
+  audioFileUrl    String
+  genre           String
+  releaseDate     DateTime @db.Date
+  description     String?  @db.Text
+  lyrics          String?  @db.Text
+  price           Decimal  @default(0.00) @db.Decimal(10, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relationships
+  album       Album?       @relation(fields: [albumId], references: [id], onDelete: SetNull)
+  songArtists SongArtist[]
+  cartItems   CartItem[]
+
+  @@unique([albumId, trackNumber])
+  @@index([albumId])
+  @@index([releaseDate])
+  @@map("songs")
+}
+
+// ============================================================================
+// JUNCTION TABLES (Many-to-Many Relationships)
+// ============================================================================
+
+// AlbumArtist - Links albums to artists with roles
+model AlbumArtist {
+  id        String     @id @default(uuid())
+  albumId   String
+  artistId  String
+  role      ArtistRole
+  createdAt DateTime   @default(now())
+
+  // Relationships
+  album  Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([albumId, artistId])
+  @@index([albumId])
+  @@index([artistId])
+  @@map("album_artists")
+}
+
+// SongArtist - Links songs to artists with roles
+model SongArtist {
+  id        String         @id @default(uuid())
+  songId    String
+  artistId  String
+  role      SongArtistRole
+  createdAt DateTime       @default(now())
+
+  // Relationships
+  song   Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
+  artist Artist @relation(fields: [artistId], references: [id], onDelete: Cascade)
+
+  @@unique([songId, artistId, role])
+  @@index([songId])
+  @@index([artistId])
+  @@map("song_artists")
+}
+
+// ============================================================================
+// CART & SESSION MODELS
+// ============================================================================
+
+// CartItem - Items added to guest shopping carts
+model CartItem {
+  id              String   @id @default(uuid())
+  sessionId       String
+  itemType        ItemType
+  itemId          String
+  quantity        Int      @default(1)
+  priceAtAddition Decimal  @db.Decimal(10, 2)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Conditional relationships based on itemType
+  album   Album?  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  albumId String?
+  song    Song?   @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId  String?
+
+  @@index([sessionId])
+  @@map("cart_items")
+}
+
+// Session - PostgreSQL session storage for connect-pg-simple
+model Session {
+  sid    String   @id
+  sess   Json
+  expire DateTime
+
+  @@index([expire])
+  @@map("sessions")
+}

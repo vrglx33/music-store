@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Uploads (in production, these would be in cloud storage)
+uploads/audio/*
+uploads/artwork/*
+!uploads/audio/.gitkeep
+!uploads/artwork/.gitkeep
+
+# Testing
+coverage/
+
+# Prisma
+prisma/migrations/
