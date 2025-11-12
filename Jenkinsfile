@@ -21,10 +21,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: "${params.BRANCH}", 
-                    url: 'https://github.com/your-org/music-store-platform.git'
-                
-                sh 'printenv'
+                echo "✅ Code already checked out by Jenkins SCM"
+                echo "Branch: ${env.GIT_BRANCH}"
+                echo "Commit: ${env.GIT_COMMIT}"
+                sh 'git log -1 --oneline'
             }
         }
 
