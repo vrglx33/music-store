@@ -1,5 +1,3 @@
-@Library('music-store-pipeline-library') _
-
 pipeline {
     agent any
 
@@ -11,30 +9,30 @@ pipeline {
     }
 
     parameters {
-        choice(name: 'DEPLOY_ENV', choices: ['development', 'staging', 'production'], description: 'Deploy environment')
+        choice(name: 'DEPLOY_ENV', choices: ['development', 'staging', 'production'], description: 'Deployment environment')
         string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
     }
 
     options {
         timeout(time: 30, unit: 'MINUTES')
-        buildDiscarder(logRotator(numToKeepStr: '5'))
+        buildDiscarder(logRotator(numToKeepStr: '10'))
         disableConcurrentBuilds()
     }
 
     stages {
         stage('Checkout') {
             steps {
-                gitCheckout(
-                    branch: "${params.BRANCH}",
-                    url: "${GITHUB_REPO}",
+                git branch: "${params.BRANCH}", 
+                    url: "${GITHUB_REPO}", 
                     credentialsId: 'github-credentials'
-                )
             }
         }
 
         stage('Setup Node') {
             steps {
-                nodeSetup(nodeVersion: NODE_VERSION)
+                nodejs(nodeJSInstallationName: 'Node 18') {
+                    sh 'npm ci'
+                }
             }
         }
 
@@ -52,44 +50,66 @@ pipeline {
 
         stage('Unit Tests') {
             steps {
-                runUnitTests()
+                sh 'npm run test:unit'
+            }
+            post {
+                always {
+                    junit 'test-results/**/*.xml'
+                }
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                sh 'npm audit --audit-level=high'
+                sh 'npm run security-check'
             }
         }
 
         stage('Docker Build') {
             steps {
-                dockerBuildAndTag(
-                    registry: DOCKER_REGISTRY,
-                    appName: APP_NAME,
-                    buildNumber: env.BUILD_NUMBER
-                )
+                script {
+                    docker.build("${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}")
+                }
             }
         }
 
         stage('Deploy') {
             when {
-                branch 'main'
-                expression { params.DEPLOY_ENV == 'production' }
+                expression { params.DEPLOY_ENV == 'production' && params.BRANCH == 'main' }
             }
             steps {
-                deployToKubernetes(
-                    registry: DOCKER_REGISTRY,
-                    appName: APP_NAME,
-                    buildNumber: env.BUILD_NUMBER
-                )
+                script {
+                    docker.withRegistry('https://your-docker-registry', 'docker-credentials') {
+                        docker.image("${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}").push()
+                    }
+                    
+                    // Example deployment to Kubernetes
+                    sh """
+                        kubectl set image deployment/${APP_NAME} ${APP_NAME}=${DOCKER_REGISTRY}/${APP_NAME}:${env.BUILD_NUMBER}
+                    """
+                }
             }
         }
     }
 
     post {
         success {
-            notifySuccess()
+            echo 'Pipeline completed successfully!'
+            slackSend(
+                color: 'good', 
+                message: "Build ${env.BUILD_NUMBER} succeeded for ${APP_NAME}"
+            )
         }
         failure {
-            notifyFailure()
+            echo 'Pipeline failed!'
+            slackSend(
+                color: 'danger', 
+                message: "Build ${env.BUILD_NUMBER} failed for ${APP_NAME}"
+            )
         }
         always {
-            cleanWorkspace()
+            cleanWs()
         }
     }
 }
