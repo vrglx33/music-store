@@ -1,0 +1,73 @@
+{
+  "repo_url": ".",
+  "owner": "unknown",
+  "repo_name": ".",
+  "local_path": "repos/unknown_.",
+  "description": "A digital marketplace platform for independent artists to sell music and for music lovers to discover new content.",
+  "language": "TypeScript",
+  "default_branch": "feature/jenkins-ci-cd-pipeline",
+  "key_files": {
+    "package.json": "{\n  \"name\": \"music-store-platform\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Digital marketplace platform for independent artists to sell music\",\n  \"main\": \"dist/server/index.js\",\n  \"scripts\": {\n    \"dev\": \"npm run build:client && nodemon --exec ts-node src/server/index.ts\",\n    \"build\": \"npm run build:server && npm run build:client\",\n    \"build:server\": \"tsc\",\n    \"build:client\": \"esbuild src/client/index.tsx --bundle --outfile=public/js/bundle.js --platform=browser --target=es2020\",\n    \"build:client:watch\": \"esbuild src/client/index.tsx --bundle --outfile=public/js/bundle.js --platform=browser --target=es2020 --watch\",\n    \"start\": \"node dist/server/index.js\",\n    \"lint\": \"eslint . --ext .ts,.tsx\",\n    \"format\": \"prettier --write \\\"src/**/*.{ts,tsx,css}\\\"\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:coverage\": \"jest --coverage\",\n    \"prisma:generate\": \"prisma generate\",\n    \"prisma:migrate\": \"prisma migrate dev\",\n    \"prisma:seed\": \"ts-node prisma/seed.ts\",\n    \"prisma:studio\": \"prisma studio\",\n    \"seed:reset\": \"bash scripts/reset-seed.sh\",\n    \"seed:verify\": \"ts-node scripts/verify-seed.ts\",\n    \"data:clear\": \"ts-node scripts/clear-data.ts\"\n  },\n  \"keywords\": [\n    \"music\",\n    \"marketplace\",\n    \"independent-artists\"\n  ],\n  \"author\": \"\",\n  \"license\": \"MIT\",\n  \"dependencies\": {\n    \"@prisma/client\": \"^5.7.0\",\n    \"@types/pg\": \"^8.15.5\",\n    \"@types/uuid\": \"^10.0.0\",\n    \"connect-pg-simple\": \"^9.0.1\",\n    \"dotenv\": \"^16.3.1\",\n    \"express\": \"^4.18.2\",\n    \"express-session\": \"^1.18.2\",\n    \"music-metadata\": \"^8.1.4\",\n    \"pg\": \"^8.16.3\",\n    \"react\": \"^18.2.0\",\n    \"react-dom\": \"^18.2.0\",\n    \"sharp\": \"^0.33.1\",\n    \"uuid\": \"^13.0.0\"\n  },\n  \"devDependencies\": {\n    \"@testing-library/jest-dom\": \"^6.9.1\",\n    \"@testing-library/react\": \"^16.3.0\",\n    \"@testing-library/user-event\": \"^14.6.1\",\n    \"@types/connect-pg-simple\": \"^7.0.3\",\n    \"@types/express\": \"^4.17.21\",\n    \"@types/express-session\": \"^1.18.2\",\n    \"@types/jest\": \"^29.5.14\",\n    \"@types/node\": \"^20.10.5\",\n    \"@types/react\": \"^18.2.45\",\n    \"@types/react-dom\": \"^18.2.18\",\n    \"@types/supertest\": \"^6.0.3\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.15.0\",\n    \"@typescript-eslint/parser\": \"^6.15.0\",\n    \"autoprefixer\": \"^10.4.16\",\n    \"esbuild\": \"^0.25.11\",\n    \"eslint\": \"^8.56.0\",\n    \"identity-obj-proxy\": \"^3.0.0\",\n    \"jest\": \"^29.7.0\",\n    \"jest-environment-jsdom\": \"^30.2.0\",\n    \"nodemon\": \"^3.0.2\",\n    \"postcss\": \"^8.4.32\",\n    \"prettier\": \"^3.1.1\",\n    \"prisma\": \"^5.7.0\",\n    \"supertest\": \"^7.1.4\",\n    \"tailwindcss\": \"^3.4.0\",\n    \"ts-jest\": \"^29.4.5\",\n    \"ts-node\": \"^10.9.2\",\n    \"typescript\": \"^5.3.3\"\n  },\n  \"prisma\": {\n    \"seed\": \"ts-node prisma/seed.ts\"\n  }\n}\n",
+    "package-lock.json": "{\n  \"name\": \"music-store-platform\",\n  \"version\": \"1.0.0\",\n  \"lockfileVersion\": 3,\n  \"requires\": true,\n  \"packages\": {\n    \"\": {\n      \"name\": \"music-store-platform\",\n      \"version\": \"1.0.0\",\n      \"license\": \"MIT\",\n      \"dependencies\": {\n        \"@prisma/client\": \"^5.7.0\",\n        \"@types/pg\": \"^8.15.5\",\n        \"@types/uuid\": \"^10.0.0\",\n        \"connect-pg-simple\": \"^9.0.1\",\n        \"dotenv\": \"^16.3.1\",\n        \"express\": \"^4.18.2\",\n        \"express-session\": \"^1.18.2\",\n        \"music-metadata\": \"^8.1.4\",\n        \"pg\": \"^8.16.3\",\n        \"react\": \"^18.2.0\",\n        \"react-dom\": \"^18.2.0\",\n        \"sharp\": \"^0.33.1\",\n        \"uuid\": \"^13.0.0\"\n      },\n      \"devDependencies\": {\n        \"@testing-library/jest-dom\": \"^6.9.1\",\n        \"@testing-library/react\": \"^16.3.0\",\n        \"@testing-library/user-event\": \"^14.6.1\",\n        \"@types/connect-pg-simple\": \"^7.0.3\",\n        \"@types/express\": \"^4.17.21\",\n        \"@types/express-session\": \"^1.18.2\",\n        \"@types/jest\": \"^29.5.14\",\n        \"@types/node\": \"^20.10.5\",\n        \"@types/react\": \"^18.2.45\",\n        \"@types/react-dom\": \"^18.2.18\",\n        \"@types/supertest\": \"^6.0.3\",\n        \"@typescript-eslint/eslint-plugin\": \"^6.15.0\",\n        \"@typescript-eslint/parser\": \"^6.15.0\",\n        \"autoprefixer\": \"^10.4.16\",\n        \"esbuild\": \"^0.25.11\",\n        \"eslint\": \"^8.56.0\",\n        \"identity-obj-proxy\": \"^3.0.0\",\n        \"jest\": \"^29.7.0\",\n        \"jest-environment-jsdom\": \"^30.2.0\",\n        \"nodemon\": \"^3.0.2\",\n        \"postcss\": \"^8.4.32\",\n        \"prettier\": \"^3.1.1\",\n        \"prisma\": \"^5.7.0\",\n        \"supertest\": \"^7.1.4\",\n        \"tailwindcss\": \"^3.4.0\",\n        \"ts-jest\": \"^29.4.5\",\n        \"ts-node\": \"^10.9.2\",\n        \"typescript\": \"^5.3.3\"\n      }\n    },\n    \"node_modules/@adobe/css-tools\": {\n      \"version\": \"4.4.4\",\n      \"resolved\": \"https://registry.npmjs.org/@adobe/css-tools/-/css-tools-4.4.4.tgz\",\n      \"integrity\": \"sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg==\",\n      \"dev\": true,\n      \"license\": \"MIT\"\n    },\n    \"node_modules/@alloc/quick-lru\": {\n      \"version\": \"5.2.0\",\n      \"resolved\": \"https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.2.0.tgz\",\n      \"integrity\": \"sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==\",\n      \"dev\": true,\n      \"license\": \"MIT\",\n      \"engines\": {\n        \"node\": \">=10\"\n      },\n      \"funding\": {\n        \"url\": \"https://github.com/sponsors/sindresorhus\"\n      }\n    },\n    \"node_modules/@asamuzakjp/css-color\": {\n      \"version\": \"3.2.0\",\n      \"resolved\": \"https://registry.npmjs.org/@asamuzakjp/css-color/-/css-color-3.2.0.tgz\",\n      \"integrity\": \"sha512-K1A6z8tS3XsmCMM86xoWdn7Fkdn9m6RSVtocUrJYIwZnFVkng/PvkEoWtOWmP+Scc6saYWHWZYbndEEXxl24jw==\",\n      \"dev\": true,\n      \"license\": \"MIT\",\n      \"dependencies\": {\n        \"@csstools/css-calc\": \"^2.1.3\",\n        \"@csstools/css-color-parser\": \"^3.0.9\",\n        \"@csstools/css-parser-algorithms\": \"^3.0",
+    "Dockerfile": "# Stage 1: Build stage\nFROM node:18-alpine AS builder\n\n# Set working directory\nWORKDIR /app\n\n# Copy package files\nCOPY package*.json ./\nCOPY prisma ./prisma/\n\n# Install dependencies\nRUN npm ci --only=production && npm cache clean --force\n\n# Install dev dependencies for build\nRUN npm install --save-dev typescript esbuild @types/node\n\n# Copy source code\nCOPY . .\n\n# Generate Prisma Client\nRUN npx prisma generate\n\n# Build the application\nRUN npm run build\n\n# Stage 2: Production stage\nFROM node:18-alpine\n\n# Install dumb-init and OpenSSL for Prisma\nRUN apk add --no-cache dumb-init openssl3 libssl3\n\n# Create app user\nRUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001\n\n# Set working directory\nWORKDIR /app\n\n# Copy package files and install production dependencies\nCOPY package*.json ./\nRUN npm ci --only=production && npm cache clean --force\n\n# Copy Prisma schema and generate client\nCOPY --chown=nodejs:nodejs prisma ./prisma/\nRUN npx prisma generate\n\n# Copy built application from builder stage\nCOPY --from=builder --chown=nodejs:nodejs /app/dist ./dist\nCOPY --from=builder --chown=nodejs:nodejs /app/public ./public\n\n# Create directories for uploads\nRUN mkdir -p /app/uploads/audio /app/uploads/artwork && \\\n    chown -R nodejs:nodejs /app/uploads\n\n# Switch to non-root user\nUSER nodejs\n\n# Expose port\nEXPOSE 3000\n\n# Health check\nHEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \\\n    CMD node -e \"require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})\"\n\n# Use dumb-init to handle signals properly\nENTRYPOINT [\"dumb-init\", \"--\"]\n\n# Start the application\nCMD [\"node\", \"dist/src/server/index.js\"]\n",
+    ".gitignore": "# Dependencies\nnode_modules/\n\n# Build output\ndist/\n\n# Environment variables\n.env\n\n# Logs\n*.log\nnpm-debug.log*\n\n# OS files\n.DS_Store\n\n# IDE\n.vscode/\n.idea/\n\n# Uploads (in production, these would be in cloud storage)\nuploads/audio/*\nuploads/artwork/*\n!uploads/audio/.gitkeep\n!uploads/artwork/.gitkeep\n\n# Testing\ncoverage/\n\n# Prisma\nprisma/migrations/\n",
+    "tsconfig.json": "{\n  \"compilerOptions\": {\n    \"target\": \"ES2020\",\n    \"module\": \"commonjs\",\n    \"lib\": [\"ES2020\", \"DOM\"],\n    \"jsx\": \"react\",\n    \"outDir\": \"./dist\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true,\n    \"resolveJsonModule\": true,\n    \"moduleResolution\": \"node\",\n    \"allowSyntheticDefaultImports\": true,\n    \"declaration\": true,\n    \"declarationMap\": true,\n    \"sourceMap\": true,\n    \"noUnusedLocals\": true,\n    \"noUnusedParameters\": true,\n    \"noImplicitReturns\": true,\n    \"noFallthroughCasesInSwitch\": true,\n    \"types\": [\"node\", \"jest\"],\n    \"baseUrl\": \".\",\n    \"paths\": {\n      \"@/*\": [\"src/*\"],\n      \"@server/*\": [\"src/server/*\"],\n      \"@client/*\": [\"src/client/*\"],\n      \"@shared/*\": [\"src/shared/*\"]\n    }\n  },\n  \"include\": [\"src/**/*\", \"prisma/seed.ts\", \"tests/**/*\"],\n  \"exclude\": [\"node_modules\", \"dist\"]\n}\n",
+    "jest.config.js": "module.exports = {\n  projects: [\n    {\n      displayName: 'server',\n      preset: 'ts-jest',\n      testEnvironment: 'node',\n      roots: ['<rootDir>/tests', '<rootDir>/src/server'],\n      testMatch: [\n        '<rootDir>/src/server/**/__tests__/**/*.test.ts',\n        '<rootDir>/tests/unit/**/*.test.ts',\n        '<rootDir>/tests/integration/**/*.test.ts'\n      ],\n      transform: {\n        '^.+\\\\.tsx?$': 'ts-jest',\n      },\n      transformIgnorePatterns: [\n        'node_modules/(?!(uuid)/)'\n      ],\n      setupFiles: ['<rootDir>/tests/setup.ts'],\n      moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],\n      testTimeout: 10000,\n    },\n    {\n      displayName: 'client',\n      preset: 'ts-jest',\n      testEnvironment: 'jsdom',\n      roots: ['<rootDir>/src/client'],\n      testMatch: ['<rootDir>/src/client/**/__tests__/**/*.test.tsx'],\n      transform: {\n        '^.+\\\\.tsx?$': 'ts-jest',\n      },\n      setupFilesAfterEnv: ['<rootDir>/tests/setupTests.ts'],\n      moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],\n      moduleNameMapper: {\n        '\\\\.(css|less|scss|sass)$': 'identity-obj-proxy',\n      },\n      testTimeout: 10000,\n    },\n  ],\n  collectCoverageFrom: [\n    'src/**/*.{ts,tsx}',\n    '!src/**/*.d.ts',\n    '!src/**/*.test.{ts,tsx}',\n    '!src/**/*.spec.{ts,tsx}',\n  ],\n};\n"
+  },
+  "project_structure": {
+    "directories": [
+      "agent-os",
+      "k8s",
+      "prisma",
+      "tests",
+      "public",
+      "scripts",
+      "src",
+      "agent-os/specs",
+      "agent-os/product",
+      "agent-os/standards",
+      "tests/unit",
+      "tests/integration",
+      "public/js",
+      "public/uploads",
+      "src/server",
+      "src/shared",
+      "src/client"
+    ],
+    "file_extensions": {
+      ".sh": 2,
+      ".md": 30,
+      ".js": 4,
+      "": 2,
+      ".json": 3,
+      ".yml": 1,
+      ".yaml": 4,
+      ".prisma": 1,
+      ".ts": 48,
+      ".jpg": 27,
+      ".py": 2,
+      ".sql": 1,
+      ".tsx": 24,
+      ".css": 2,
+      ".wav": 40
+    },
+    "total_files": 191,
+    "source_files": 83
+  },
+  "tech_stack": [
+    "Node.js",
+    "React",
+    "Express",
+    "TypeScript",
+    "Docker"
+  ],
+  "build_tools": [
+    "npm",
+    "Docker"
+  ],
+  "test_frameworks": [
+    "Jest"
+  ],
+  "ssh_configured": true,
+  "summary": "Repository Analysis (Local Clone):\nPrimary Language: TypeScript\nTechnology Stack: Node.js, React, Express, TypeScript, Docker\nBuild Tools: npm, Docker\nTest Frameworks: Jest\nConfiguration Files: package.json, package-lock.json, Dockerfile, .gitignore, tsconfig.json, jest.config.js\nTotal Files: 191\nSource Files: 83\nMain Directories: agent-os, k8s, prisma, tests, public, scripts, src, agent-os/specs, agent-os/product, agent-os/standards\nDescription: A digital marketplace platform for independent artists to sell music and for music lovers to discover new content.\nDefault Branch: feature/jenkins-ci-cd-pipeline\nSSH Status: \u2705 Configured"
+}

@@ -1,0 +1,33 @@
+{
+  "jenkins_accessible": true,
+  "version_info": {
+    "jenkins_version": "2.528.1"
+  },
+  "installed_plugins": {
+    "caffeine-api": "3.2.3-194.v31a_b_f7a_b_5a_81",
+    "cloudbees-folder": "6.1073.va_7888eb_dd514",
+    "durable-task": "635.v3733cef34b_5e",
+    "javax-activation-api": "JAF",
+    "jjwt-api": "JJWT",
+    "workflow-scm-step": "466.va_d69e602552b_"
+  },
+  "plugin_categories": {
+    "scm": [],
+    "build": [],
+    "test": [],
+    "notification": [],
+    "deployment": [],
+    "security": [],
+    "pipeline": [
+      "workflow-scm-step"
+    ],
+    "ui": [],
+    "other": [
+      "caffeine-api",
+      "cloudbees-folder",
+      "durable-task",
+      "javax-activation-api",
+      "jjwt-api"
+    ]
+  }
+}

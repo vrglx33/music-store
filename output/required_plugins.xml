@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+  <plugin>workflow-aggregator@2.8</plugin>
+  <plugin>git@5.2.2</plugin>
+  <plugin>github@1.37.1</plugin>
+  <plugin>docker-workflow@1.29</plugin>
+  <plugin>nodejs@2.2.0</plugin>
+  <plugin>junit@1.54</plugin>
+  <plugin>github-branch-source@1742.vdf3cfb_c15a_c0</plugin>
+</plugins>

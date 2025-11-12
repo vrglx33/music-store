@@ -1,0 +1,124 @@
+pipeline {
+    agent any
+
+    environment {
+        NODE_VERSION = '18'
+        DOCKER_REGISTRY = 'your-docker-registry.com'
+        PROJECT_NAME = 'music-store-platform'
+        BRANCH_NAME = "${env.BRANCH_NAME}"
+    }
+
+    parameters {
+        choice(name: 'DEPLOYMENT_TARGET', choices: ['staging', 'production'], description: 'Deployment environment')
+    }
+
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                sh 'git clean -fdx'
+            }
+        }
+
+        stage('Setup') {
+            steps {
+                nodejs(nodeJSInstallationName: 'Node 18') {
+                    sh 'npm ci'
+                }
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh 'npm run lint'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm run build'
+                script {
+                    docker.build("${DOCKER_REGISTRY}/${PROJECT_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}")
+                }
+            }
+        }
+
+        stage('Test') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh 'npm run test:unit'
+                    }
+                }
+                stage('Integration Tests') {
+                    steps {
+                        sh 'npm run test:integration'
+                    }
+                }
+            }
+        }
+
+        stage('Security Scan') {
+            steps {
+                sh 'npm audit'
+                sh 'docker scan ${DOCKER_REGISTRY}/${PROJECT_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}'
+            }
+        }
+
+        stage('Deploy') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'feature/jenkins-ci-cd-pipeline'
+                }
+            }
+            steps {
+                script {
+                    def targetEnv = params.DEPLOYMENT_TARGET
+                    
+                    if (targetEnv == 'production') {
+                        // Production deployment logic
+                        sh """
+                            docker push ${DOCKER_REGISTRY}/${PROJECT_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}
+                            kubectl apply -f k8s/production/
+                        """
+                    } else {
+                        // Staging deployment logic
+                        sh """
+                            docker push ${DOCKER_REGISTRY}/${PROJECT_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}
+                            kubectl apply -f k8s/staging/
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+            slackSend(
+                color: 'good', 
+                message: "Build ${env.JOB_NAME} ${env.BUILD_NUMBER} succeeded!"
+            )
+        }
+        failure {
+            echo 'Pipeline failed!'
+            slackSend(
+                color: 'danger', 
+                message: "Build ${env.JOB_NAME} ${env.BUILD_NUMBER} failed!"
+            )
+        }
+        always {
+            // Cleanup steps
+            sh 'docker system prune -f'
+            cleanWs()
+        }
+    }
+}
