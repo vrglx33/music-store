@@ -5,7 +5,6 @@ pipeline {
         NODE_VERSION = '16.x'
         NPM_REGISTRY = 'https://registry.npmjs.org/'
         PROJECT_NAME = 'music-store-platform'
-        DOCKER_CREDENTIALS = credentials('docker-hub-credentials')
     }
 
     parameters {
@@ -80,12 +79,11 @@ pipeline {
             }
             steps {
                 script {
-                    // Example deployment strategy
-                    sh """
-                        docker login -u ${DOCKER_CREDENTIALS_USR} -p ${DOCKER_CREDENTIALS_PSW}
-                        docker push ${PROJECT_NAME}:${env.BUILD_NUMBER}
-                        kubectl apply -f k8s/deployment.yaml
-                    """
+                    echo "🚀 Deployment stage"
+                    echo "Would deploy ${PROJECT_NAME}:${env.BUILD_NUMBER} to ${params.DEPLOY_ENV}"
+                    // TODO: Configure Docker credentials and kubectl access
+                    // sh "docker push ${PROJECT_NAME}:${env.BUILD_NUMBER}"
+                    // sh "kubectl apply -f k8s/deployment.yaml"
                 }
             }
         }
@@ -94,15 +92,14 @@ pipeline {
     post {
         success {
             echo "✅ Pipeline completed successfully!"
-            echo "Build #${env.BUILD_NUMBER} for ${PROJECT_NAME}"
+            echo "Build #${env.BUILD_NUMBER} for music-store-platform"
         }
         failure {
             echo "❌ Pipeline failed!"
-            echo "Build #${env.BUILD_NUMBER} for ${PROJECT_NAME}"
+            echo "Build #${env.BUILD_NUMBER} for music-store-platform"
         }
         always {
-            echo "🧹 Cleaning workspace..."
-            cleanWs()
+            echo "🏁 Pipeline finished"
         }
     }
 }
