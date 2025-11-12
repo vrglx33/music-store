@@ -7,3 +7,4 @@
 - **Clear Test Names**: Use descriptive names that explain what's being tested and the expected outcome
 - **Mock External Dependencies**: Isolate units by mocking databases, APIs, file systems, and other external services
 - **Fast Execution**: Keep unit tests fast (milliseconds) so developers run them frequently during development
+- **Use TDD**: For all tasks and executions do write tests first, follow the priciples of TDD

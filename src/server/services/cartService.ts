@@ -207,6 +207,91 @@ class CartService {
       subtotal,
     };
   }
+
+  /**
+   * Update cart item quantity
+   * @param sessionId - User's session ID
+   * @param cartItemId - ID of the cart item to update
+   * @param quantity - New quantity (must be between 1 and 10)
+   * @returns Updated cart item information
+   * @throws Error if quantity is out of range or cart item not found
+   */
+  async updateCartItemQuantity(
+    sessionId: string,
+    cartItemId: string,
+    quantity: number
+  ): Promise<CartItemInfo> {
+    // Validate quantity is between 1 and 10
+    if (quantity < 1 || quantity > 10) {
+      throw new Error('Quantity must be between 1 and 10');
+    }
+
+    // Verify cart item exists and belongs to session
+    const cartItem = await prisma.cartItem.findFirst({
+      where: {
+        id: cartItemId,
+        sessionId,
+      },
+    });
+
+    if (!cartItem) {
+      throw new Error('Cart item not found');
+    }
+
+    // Update quantity in database
+    const updatedCartItem = await prisma.cartItem.update({
+      where: { id: cartItemId },
+      data: { quantity },
+    });
+
+    // Return updated cart item with details
+    return {
+      id: updatedCartItem.id,
+      itemType: updatedCartItem.itemType,
+      itemId: updatedCartItem.itemId,
+      quantity: updatedCartItem.quantity,
+      priceAtAddition: parseFloat(updatedCartItem.priceAtAddition.toString()),
+    };
+  }
+
+  /**
+   * Remove cart item
+   * @param sessionId - User's session ID
+   * @param cartItemId - ID of the cart item to remove
+   * @throws Error if cart item not found
+   */
+  async removeCartItem(sessionId: string, cartItemId: string): Promise<void> {
+    // Verify cart item exists and belongs to session
+    const cartItem = await prisma.cartItem.findFirst({
+      where: {
+        id: cartItemId,
+        sessionId,
+      },
+    });
+
+    if (!cartItem) {
+      throw new Error('Cart item not found');
+    }
+
+    // Delete cart item from database
+    await prisma.cartItem.delete({
+      where: { id: cartItemId },
+    });
+  }
+
+  /**
+   * Clear cart
+   * @param sessionId - User's session ID
+   * @returns Object containing the count of deleted items
+   */
+  async clearCart(sessionId: string): Promise<{ deletedCount: number }> {
+    // Delete all cart items where sessionId matches
+    const result = await prisma.cartItem.deleteMany({
+      where: { sessionId },
+    });
+
+    return { deletedCount: result.count };
+  }
 }
 
 // Export singleton instance

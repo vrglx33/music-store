@@ -12,7 +12,7 @@
 
 5. [ ] Album & Song Detail Pages — Create dedicated server-side rendered pages for albums and individual songs showing metadata, artwork, track listings, pricing, and add-to-cart functionality. `S`
 
-6. [ ] Shopping Cart — Build shopping cart system with session-based storage allowing users to add/remove items, view cart contents, update quantities, and see total pricing before checkout. `S`
+6. [x] Shopping Cart — Build shopping cart system with session-based storage allowing users to add/remove items, view cart contents, update quantities, and see total pricing before checkout. `S`
 
 7. [ ] Payment Integration — Integrate payment gateway (Stripe test mode) for secure checkout processing with order confirmation and basic receipt generation stored in the database. `L`
 

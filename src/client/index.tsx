@@ -10,6 +10,7 @@ import { hydrateRoot } from 'react-dom/client';
 import CatalogPage from './pages/CatalogPage';
 import AlbumDetailPage from './pages/AlbumDetailPage';
 import SongDetailPage from './pages/SongDetailPage';
+import CartPage from './pages/CartPage';
 import { AudioPlayerProvider } from './context/AudioPlayerContext';
 
 // Get initial data from server
@@ -44,6 +45,10 @@ function hydratePage() {
       case 'song-detail':
         console.log('Hydrating SongDetailPage with props:', serverData);
         pageComponent = <SongDetailPage {...serverData} />;
+        break;
+      case 'cart':
+        console.log('Hydrating CartPage with props:', serverData);
+        pageComponent = <CartPage {...serverData} />;
         break;
       default:
         console.error(`Unknown page type: ${pageType}`);

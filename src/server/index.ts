@@ -22,6 +22,7 @@ import cartRoutes from './routes/api/cart';
 import catalogPageRoutes from './routes/pages/catalog';
 import albumDetailPageRoutes from './routes/pages/albumDetail';
 import songDetailPageRoutes from './routes/pages/songDetail';
+import cartPageRoutes from './routes/pages/cart';
 
 // Load environment variables
 dotenv.config();
@@ -70,6 +71,7 @@ app.use('/api/songs', songRoutes);
 app.use('/api/cart', cartRoutes);
 
 // SSR Page Routes
+app.use('/cart', cartPageRoutes); // /cart
 app.use(albumDetailPageRoutes); // /albums/:id
 app.use(songDetailPageRoutes); // /songs/:id
 app.use(catalogPageRoutes); // / and /browse

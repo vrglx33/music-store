@@ -1085,7 +1085,7 @@
             }
             return dispatcher.useContext(Context);
           }
-          function useState7(initialState) {
+          function useState8(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1097,7 +1097,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect3(create, deps) {
+          function useEffect4(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1880,7 +1880,7 @@
           exports.useContext = useContext2;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect3;
+          exports.useEffect = useEffect4;
           exports.useId = useId;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useInsertionEffect = useInsertionEffect;
@@ -1888,7 +1888,7 @@
           exports.useMemo = useMemo;
           exports.useReducer = useReducer;
           exports.useRef = useRef2;
-          exports.useState = useState7;
+          exports.useState = useState8;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -2384,9 +2384,9 @@
           if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function") {
             __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
           }
-          var React14 = require_react();
+          var React17 = require_react();
           var Scheduler = require_scheduler();
-          var ReactSharedInternals = React14.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React17.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           var suppressWarning = false;
           function setSuppressWarning(newSuppressWarning) {
             {
@@ -3993,7 +3993,7 @@
             {
               if (props.value == null) {
                 if (typeof props.children === "object" && props.children !== null) {
-                  React14.Children.forEach(props.children, function(child) {
+                  React17.Children.forEach(props.children, function(child) {
                     if (child == null) {
                       return;
                     }
@@ -23583,7 +23583,7 @@
   });
 
   // src/client/index.tsx
-  var import_react15 = __toESM(require_react());
+  var import_react18 = __toESM(require_react());
   var import_client = __toESM(require_client());
 
   // src/client/pages/CatalogPage.tsx
@@ -24108,11 +24108,91 @@
       },
       []
     );
+    const updateQuantity = (0, import_react5.useCallback)(
+      async (cartItemId, quantity) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const response = await fetch(`/api/cart/items/${cartItemId}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ quantity }),
+            credentials: "include"
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to update quantity");
+          }
+          await response.json();
+          setIsLoading(false);
+          return true;
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : "Failed to update quantity";
+          setError(errorMessage);
+          setIsLoading(false);
+          return false;
+        }
+      },
+      []
+    );
+    const removeItem = (0, import_react5.useCallback)(
+      async (cartItemId) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const response = await fetch(`/api/cart/items/${cartItemId}`, {
+            method: "DELETE",
+            credentials: "include"
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Failed to remove item");
+          }
+          await response.json();
+          setIsLoading(false);
+          return true;
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : "Failed to remove item";
+          setError(errorMessage);
+          setIsLoading(false);
+          return false;
+        }
+      },
+      []
+    );
+    const clearCart = (0, import_react5.useCallback)(async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("/api/cart", {
+          method: "DELETE",
+          credentials: "include"
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to clear cart");
+        }
+        await response.json();
+        setCartCount(0);
+        setIsLoading(false);
+        return true;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Failed to clear cart";
+        setError(errorMessage);
+        setIsLoading(false);
+        return false;
+      }
+    }, []);
     return {
       cartCount,
       isLoading,
       error,
       addToCart,
+      updateQuantity,
+      removeItem,
+      clearCart,
       getCartCount
     };
   };
@@ -25175,6 +25255,207 @@
   };
   var SongDetailPage_default = SongDetailPage;
 
+  // src/client/pages/CartPage.tsx
+  var import_react17 = __toESM(require_react());
+
+  // src/client/components/CartItem.tsx
+  var import_react15 = __toESM(require_react());
+  var CartItem = ({
+    id,
+    itemType,
+    title,
+    artist,
+    artworkUrl,
+    price,
+    quantity,
+    onUpdateQuantity,
+    onRemove
+  }) => {
+    const handleDecrease = () => {
+      if (quantity > 1) {
+        onUpdateQuantity(id, quantity - 1);
+      }
+    };
+    const handleIncrease = () => {
+      if (quantity < 10) {
+        onUpdateQuantity(id, quantity + 1);
+      }
+    };
+    const handleRemove = () => {
+      onRemove(id);
+    };
+    const subtotal = (price * quantity).toFixed(2);
+    return /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex gap-4 border-b border-gray-200 py-4" }, /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex-shrink-0" }, artworkUrl ? /* @__PURE__ */ import_react15.default.createElement(
+      "img",
+      {
+        src: artworkUrl,
+        alt: title,
+        className: "w-12 h-12 object-cover rounded"
+      }
+    ) : /* @__PURE__ */ import_react15.default.createElement("div", { className: "w-12 h-12 bg-gray-200 rounded flex items-center justify-center" }, /* @__PURE__ */ import_react15.default.createElement("span", { className: "text-gray-400 text-xs" }, "No Art"))), /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex-1" }, /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex justify-between items-start" }, /* @__PURE__ */ import_react15.default.createElement("div", null, /* @__PURE__ */ import_react15.default.createElement("h3", { className: "font-medium text-gray-900" }, title), /* @__PURE__ */ import_react15.default.createElement("p", { className: "text-sm text-gray-600" }, artist), /* @__PURE__ */ import_react15.default.createElement("span", { className: "inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-800 rounded" }, itemType === "album" ? "Album" : "Song")), /* @__PURE__ */ import_react15.default.createElement(
+      "button",
+      {
+        onClick: handleRemove,
+        "aria-label": "Remove item",
+        className: "text-red-600 hover:text-red-800 text-sm font-medium"
+      },
+      "Remove"
+    )), /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex items-center justify-between mt-3" }, /* @__PURE__ */ import_react15.default.createElement("div", { className: "text-sm text-gray-600" }, /* @__PURE__ */ import_react15.default.createElement("span", { className: "font-medium" }, "$", price), " each"), /* @__PURE__ */ import_react15.default.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ import_react15.default.createElement(
+      "button",
+      {
+        onClick: handleDecrease,
+        disabled: quantity <= 1,
+        "aria-label": "Decrease quantity",
+        className: "w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+      },
+      "-"
+    ), /* @__PURE__ */ import_react15.default.createElement(
+      "input",
+      {
+        type: "number",
+        value: quantity,
+        readOnly: true,
+        className: "w-12 text-center border border-gray-300 rounded py-1"
+      }
+    ), /* @__PURE__ */ import_react15.default.createElement(
+      "button",
+      {
+        onClick: handleIncrease,
+        disabled: quantity >= 10,
+        "aria-label": "Increase quantity",
+        className: "w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+      },
+      "+"
+    )), /* @__PURE__ */ import_react15.default.createElement("div", { className: "text-sm font-medium text-gray-900" }, "$", subtotal))));
+  };
+  var CartItem_default = CartItem;
+
+  // src/client/components/CartSummary.tsx
+  var import_react16 = __toESM(require_react());
+  var CartSummary = ({
+    itemCount,
+    subtotal,
+    onClearCart,
+    isLoading = false
+  }) => {
+    const formattedSubtotal = subtotal.toFixed(2);
+    return /* @__PURE__ */ import_react16.default.createElement("div", { className: "bg-gray-50 border-t border-gray-200 p-6" }, /* @__PURE__ */ import_react16.default.createElement("div", { className: "space-y-2 mb-4" }, /* @__PURE__ */ import_react16.default.createElement("div", { className: "flex justify-between text-sm text-gray-600" }, /* @__PURE__ */ import_react16.default.createElement("span", null, itemCount, " ", itemCount === 1 ? "item" : "items")), /* @__PURE__ */ import_react16.default.createElement("div", { className: "flex justify-between text-lg font-bold text-gray-900" }, /* @__PURE__ */ import_react16.default.createElement("span", null, "Subtotal:"), /* @__PURE__ */ import_react16.default.createElement("span", null, "$", formattedSubtotal))), /* @__PURE__ */ import_react16.default.createElement("div", { className: "space-y-3" }, /* @__PURE__ */ import_react16.default.createElement(
+      "button",
+      {
+        onClick: onClearCart,
+        disabled: isLoading || itemCount === 0,
+        className: "w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+      },
+      "Clear Cart"
+    ), /* @__PURE__ */ import_react16.default.createElement(
+      "a",
+      {
+        href: "/catalog",
+        className: "block w-full py-2 px-4 border border-transparent rounded-md text-sm font-medium text-center text-indigo-700 bg-indigo-100 hover:bg-indigo-200"
+      },
+      "Continue Shopping"
+    ), /* @__PURE__ */ import_react16.default.createElement(
+      "button",
+      {
+        disabled: true,
+        className: "w-full py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-gray-400 cursor-not-allowed",
+        title: "Checkout coming soon"
+      },
+      "Proceed to Checkout"
+    )));
+  };
+  var CartSummary_default = CartSummary;
+
+  // src/client/pages/CartPage.tsx
+  var CartPage = () => {
+    const { isLoading, updateQuantity, removeItem, clearCart, getCartCount } = useCart();
+    const [cartData, setCartData] = (0, import_react17.useState)(null);
+    const [fetchLoading, setFetchLoading] = (0, import_react17.useState)(true);
+    const [error, setError] = (0, import_react17.useState)(null);
+    (0, import_react17.useEffect)(() => {
+      fetchCart();
+    }, []);
+    const fetchCart = async () => {
+      setFetchLoading(true);
+      setError(null);
+      try {
+        const response = await fetch("/api/cart", {
+          credentials: "include"
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch cart");
+        }
+        const data = await response.json();
+        setCartData(data);
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Failed to load cart";
+        setError(errorMessage);
+      } finally {
+        setFetchLoading(false);
+      }
+    };
+    const handleUpdateQuantity = async (cartItemId, quantity) => {
+      const success = await updateQuantity(cartItemId, quantity);
+      if (success) {
+        await fetchCart();
+        await getCartCount();
+      }
+    };
+    const handleRemoveItem = async (cartItemId) => {
+      const success = await removeItem(cartItemId);
+      if (success) {
+        await fetchCart();
+        await getCartCount();
+      }
+    };
+    const handleClearCart = async () => {
+      const success = await clearCart();
+      if (success) {
+        await fetchCart();
+      }
+    };
+    if (fetchLoading) {
+      return /* @__PURE__ */ import_react17.default.createElement("div", { className: "max-w-4xl mx-auto px-4 py-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-gray-600" }, "Loading...")));
+    }
+    if (error) {
+      return /* @__PURE__ */ import_react17.default.createElement("div", { className: "max-w-4xl mx-auto px-4 py-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-red-600" }, error)));
+    }
+    if (!cartData || cartData.items.length === 0) {
+      return /* @__PURE__ */ import_react17.default.createElement("div", { className: "max-w-4xl mx-auto px-4 py-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "text-center" }, /* @__PURE__ */ import_react17.default.createElement("h1", { className: "text-2xl font-bold text-gray-900 mb-4" }, "Shopping Cart"), /* @__PURE__ */ import_react17.default.createElement("div", { className: "py-12" }, /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-xl text-gray-600 mb-4" }, "Your cart is empty"), /* @__PURE__ */ import_react17.default.createElement(
+        "a",
+        {
+          href: "/catalog",
+          className: "inline-block px-6 py-3 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700"
+        },
+        "Start Shopping"
+      ))));
+    }
+    return /* @__PURE__ */ import_react17.default.createElement("div", { className: "max-w-4xl mx-auto px-4 py-8" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "mb-6" }, /* @__PURE__ */ import_react17.default.createElement("h1", { className: "text-2xl font-bold text-gray-900" }, "Shopping Cart"), /* @__PURE__ */ import_react17.default.createElement("p", { className: "text-sm text-gray-600 mt-1" }, cartData.totalItems, " ", cartData.totalItems === 1 ? "item" : "items")), /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white rounded-lg shadow-sm border border-gray-200 mb-6" }, /* @__PURE__ */ import_react17.default.createElement("div", { className: "p-6" }, cartData.items.map((item) => /* @__PURE__ */ import_react17.default.createElement(
+      CartItem_default,
+      {
+        key: item.id,
+        id: item.id,
+        itemType: item.itemType,
+        title: item.item?.title || "Unknown",
+        artist: item.item?.artist || "Unknown Artist",
+        artworkUrl: item.item?.artworkUrl || void 0,
+        price: item.priceAtAddition,
+        quantity: item.quantity,
+        onUpdateQuantity: handleUpdateQuantity,
+        onRemove: handleRemoveItem
+      }
+    )))), /* @__PURE__ */ import_react17.default.createElement("div", { className: "bg-white rounded-lg shadow-sm border border-gray-200" }, /* @__PURE__ */ import_react17.default.createElement(
+      CartSummary_default,
+      {
+        itemCount: cartData.totalItems,
+        subtotal: cartData.subtotal,
+        onClearCart: handleClearCart,
+        isLoading
+      }
+    )));
+  };
+  var CartPage_default = CartPage;
+
   // src/client/index.tsx
   var serverData = window.__INITIAL_DATA__ || {};
   var pageType = window.__PAGE_TYPE__ || "catalog";
@@ -25191,21 +25472,25 @@
       switch (pageType) {
         case "catalog":
           console.log("Hydrating CatalogPage with props:", serverData);
-          pageComponent = /* @__PURE__ */ import_react15.default.createElement(CatalogPage_default, { ...serverData });
+          pageComponent = /* @__PURE__ */ import_react18.default.createElement(CatalogPage_default, { ...serverData });
           break;
         case "album-detail":
           console.log("Hydrating AlbumDetailPage with props:", serverData);
-          pageComponent = /* @__PURE__ */ import_react15.default.createElement(AlbumDetailPage_default, { ...serverData });
+          pageComponent = /* @__PURE__ */ import_react18.default.createElement(AlbumDetailPage_default, { ...serverData });
           break;
         case "song-detail":
           console.log("Hydrating SongDetailPage with props:", serverData);
-          pageComponent = /* @__PURE__ */ import_react15.default.createElement(SongDetailPage_default, { ...serverData });
+          pageComponent = /* @__PURE__ */ import_react18.default.createElement(SongDetailPage_default, { ...serverData });
+          break;
+        case "cart":
+          console.log("Hydrating CartPage with props:", serverData);
+          pageComponent = /* @__PURE__ */ import_react18.default.createElement(CartPage_default, { ...serverData });
           break;
         default:
           console.error(`Unknown page type: ${pageType}`);
           return;
       }
-      const component = /* @__PURE__ */ import_react15.default.createElement(AudioPlayerProvider, null, pageComponent);
+      const component = /* @__PURE__ */ import_react18.default.createElement(AudioPlayerProvider, null, pageComponent);
       console.log("Calling hydrateRoot...");
       (0, import_client.hydrateRoot)(root, component);
       console.log(`Music Store client hydrated successfully (${pageType})`);

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: music-store-service
+  labels:
+    app: music-store-platform
+spec:
+  type: LoadBalancer
+  selector:
+    app: music-store-platform
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http

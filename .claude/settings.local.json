@@ -30,7 +30,8 @@
       "Bash(npm run dev:*)",
       "Bash(npm run build:client:*)",
       "Bash(pkill:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []
