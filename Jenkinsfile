@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:18-alpine'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     environment {
         NODE_VERSION = '16.x'
@@ -33,11 +28,27 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Install Node.js & Dependencies') {
             steps {
                 sh '''
+                    # Install nvm and Node.js
+                    export NVM_DIR="$HOME/.nvm"
+                    if [ ! -d "$NVM_DIR" ]; then
+                        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+                    fi
+                    
+                    # Load nvm
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                    
+                    # Install and use Node.js 18
+                    nvm install 18
+                    nvm use 18
+                    
+                    # Verify versions
                     node --version
                     npm --version
+                    
+                    # Install dependencies
                     npm ci
                 '''
             }
@@ -45,25 +56,45 @@ pipeline {
 
         stage('Lint') {
             steps {
-                sh 'npm run lint || echo "Lint not configured, skipping..."'
+                sh '''
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                    nvm use 18
+                    npm run lint || echo "Lint not configured, skipping..."
+                '''
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build'
+                sh '''
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                    nvm use 18
+                    npm run build
+                '''
             }
         }
 
         stage('Tests') {
             steps {
-                sh 'npm test || echo "Tests not configured, skipping..."'
+                sh '''
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                    nvm use 18
+                    npm test || echo "Tests not configured, skipping..."
+                '''
             }
         }
 
         stage('Security Scan') {
             steps {
-                sh 'npm audit --audit-level=moderate || echo "Vulnerabilities found, but continuing..."'
+                sh '''
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                    nvm use 18
+                    npm audit --audit-level=moderate || echo "Vulnerabilities found, but continuing..."
+                '''
             }
         }
 
