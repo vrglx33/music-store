@@ -99,27 +99,66 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            when {
-                branch 'main'
-            }
             steps {
                 script {
-                    docker.build("${PROJECT_NAME}:${env.BUILD_NUMBER}")
+                    echo "🐳 Building Docker image..."
+                    sh '''
+                        docker build -t music-store-platform:latest .
+                        docker tag music-store-platform:latest music-store-platform:${BUILD_NUMBER}
+                        echo "✅ Image built: music-store-platform:latest"
+                        echo "✅ Image tagged: music-store-platform:${BUILD_NUMBER}"
+                    '''
                 }
             }
         }
 
-        stage('Deploy') {
-            when {
-                expression { params.DEPLOY_ENV == 'production' }
-            }
+        stage('Create K8s Resources') {
             steps {
                 script {
-                    echo "🚀 Deployment stage"
-                    echo "Would deploy ${PROJECT_NAME}:${env.BUILD_NUMBER} to ${params.DEPLOY_ENV}"
-                    // TODO: Configure Docker credentials and kubectl access
-                    // sh "docker push ${PROJECT_NAME}:${env.BUILD_NUMBER}"
-                    // sh "kubectl apply -f k8s/deployment.yaml"
+                    echo "📦 Creating Kubernetes ConfigMap and Secrets..."
+                    sh '''
+                        # Create namespace if not exists
+                        kubectl create namespace music-store --dry-run=client -o yaml | kubectl apply -f -
+                        
+                        # Create ConfigMap
+                        kubectl create configmap music-store-config \
+                          --from-literal=NODE_ENV=production \
+                          --from-literal=PORT=3000 \
+                          -n music-store \
+                          --dry-run=client -o yaml | kubectl apply -f -
+                        
+                        # Create Secrets
+                        kubectl create secret generic music-store-secrets \
+                          --from-literal=DATABASE_URL="postgresql://postgres:postgres@postgres:5432/musicstore" \
+                          --from-literal=SESSION_SECRET="demo-secret-key-change-in-production" \
+                          -n music-store \
+                          --dry-run=client -o yaml | kubectl apply -f -
+                        
+                        echo "✅ ConfigMap and Secrets created"
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    echo "🚀 Deploying to Kubernetes..."
+                    sh '''
+                        # Apply Kubernetes manifests
+                        kubectl apply -f k8s/deployment.yaml -n music-store
+                        kubectl apply -f k8s/service.yaml -n music-store
+                        
+                        # Wait for deployment
+                        kubectl rollout status deployment/music-store-platform -n music-store --timeout=2m
+                        
+                        # Show deployment info
+                        echo "\n📊 Deployment Status:"
+                        kubectl get pods -n music-store
+                        kubectl get svc -n music-store
+                        
+                        echo "\n✅ Deployment completed successfully!"
+                    '''
                 }
             }
         }
