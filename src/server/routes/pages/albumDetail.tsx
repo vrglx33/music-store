@@ -61,8 +61,7 @@ router.get('/albums/:id', async (req: Request, res: Response) => {
     // Wrap with AudioPlayerProvider
     const component = React.createElement(
       AudioPlayerProvider,
-      {},
-      pageComponent
+      { children: pageComponent }
     );
 
     renderPage(req, res, component, {

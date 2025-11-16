@@ -57,8 +57,7 @@ router.get(['/', '/browse'], async (req: Request, res: Response) => {
     // Wrap with AudioPlayerProvider
     const component = React.createElement(
       AudioPlayerProvider,
-      {},
-      pageComponent
+      { children: pageComponent }
     );
 
     // Pass props that match component expectations

@@ -17,6 +17,7 @@ import catalogRoutes from './routes/api/catalog';
 import albumRoutes from './routes/api/albums';
 import songRoutes from './routes/api/songs';
 import cartRoutes from './routes/api/cart';
+import premiumUpgradeRoutes from './routes/premiumUpgrade';
 
 // Import page routes (SSR)
 import catalogPageRoutes from './routes/pages/catalog';
@@ -68,6 +69,7 @@ app.use('/api/catalog', catalogRoutes);
 app.use('/api/albums', albumRoutes);
 app.use('/api/songs', songRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/premium', premiumUpgradeRoutes);
 
 // SSR Page Routes
 app.use(albumDetailPageRoutes); // /albums/:id

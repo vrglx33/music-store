@@ -7,7 +7,7 @@
     "dev": "npm run build:client && nodemon --exec ts-node src/server/index.ts",
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsc",
-    "build:client": "esbuild src/client/index.tsx --bundle --outfile=public/js/bundle.js --platform=browser --target=es2020",
+    "build:client": "npx esbuild src/client/index.tsx --bundle --outfile=public/js/bundle.js --platform=browser --target=es2020",
     "build:client:watch": "esbuild src/client/index.tsx --bundle --outfile=public/js/bundle.js --platform=browser --target=es2020 --watch",
     "start": "node dist/server/index.js",
     "lint": "eslint . --ext .ts,.tsx",

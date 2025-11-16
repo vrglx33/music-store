@@ -177,3 +177,14 @@ model Session {
   @@index([expire])
   @@map("sessions")
 }
+
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  isPremium  Boolean  @default(false)
+  creditCard String?
+  cvv        String?
+  createdAt  DateTime @default(now())
+
+  @@map("User")
+}

@@ -8,11 +8,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
-
-# Install dev dependencies for build
-RUN npm install --save-dev typescript esbuild @types/node
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci && npm cache clean --force
 
 # Copy source code
 COPY . .
@@ -21,7 +18,9 @@ COPY . .
 RUN npx prisma generate
 
 # Build the application
-RUN npm run build
+RUN npm run build:server
+RUN ./node_modules/.bin/esbuild src/client/index.tsx --bundle --outfile=public/js/bundle.js --platform=browser --target=es2020 || \
+    node -e "require('esbuild').build({entryPoints:['src/client/index.tsx'],bundle:true,outfile:'public/js/bundle.js',platform:'browser',target:'es2020'}).catch(()=>process.exit(1))"
 
 # Stage 2: Production stage
 FROM node:18-alpine
