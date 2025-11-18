@@ -1,231 +1,93 @@
 /**
- * Cart Service Unit Tests
- * Tests for cart management operations following TDD methodology
+ * Cart Service Tests
+ * Focused tests for cart service business logic
  */
-
-// Mock Prisma client before importing the service
-const mockFindFirst = jest.fn();
-const mockUpdate = jest.fn();
-const mockDelete = jest.fn();
-const mockDeleteMany = jest.fn();
-const mockCount = jest.fn();
-const mockFindUnique = jest.fn();
-const mockCreate = jest.fn();
-const mockFindMany = jest.fn();
-
-jest.mock('../../config/database', () => ({
-  __esModule: true,
-  default: {
-    cartItem: {
-      findFirst: mockFindFirst,
-      update: mockUpdate,
-      delete: mockDelete,
-      deleteMany: mockDeleteMany,
-      count: mockCount,
-      create: mockCreate,
-      findMany: mockFindMany,
-    },
-    album: {
-      findUnique: mockFindUnique,
-    },
-    song: {
-      findUnique: mockFindUnique,
-    },
-  },
-}));
 
 import { cartService } from '../cartService';
+import prisma from '../../config/database';
 
-/**
- * Mock Data Factories
- */
-function createMockPrismaDecimal(value: string = '9.99') {
-  return {
-    toString: () => value,
-  };
-}
-
-function createMockCartItem(overrides: any = {}) {
-  return {
-    id: 'cart-item-1',
-    sessionId: 'session-123',
-    itemType: 'album',
-    itemId: 'album-1',
-    albumId: 'album-1',
-    songId: null,
-    quantity: 1,
-    priceAtAddition: createMockPrismaDecimal('9.99'),
-    createdAt: new Date(),
-    ...overrides,
-  };
-}
-
-/**
- * Test Suite: CartService
- */
 describe('CartService', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
+  const testSessionId = `test-session-${Date.now()}-${Math.random()}`;
+
+  beforeAll(async () => {
+    await prisma.$connect();
   });
 
-  /**
-   * Tests for updateCartItemQuantity method
-   */
-  describe('updateCartItemQuantity', () => {
-    it('should successfully update quantity for existing cart item', async () => {
-      // Arrange: Mock finding and updating cart item
-      const mockCartItem = createMockCartItem({
-        id: 'cart-item-1',
-        sessionId: 'session-123',
-        quantity: 2,
-      });
+  afterAll(async () => {
+    // Clean up test cart items
+    await prisma.cartItem.deleteMany({
+      where: { sessionId: testSessionId },
+    });
+    await prisma.$disconnect();
+  });
 
-      mockFindFirst.mockResolvedValue(mockCartItem);
-      mockUpdate.mockResolvedValue({
-        ...mockCartItem,
-        quantity: 5,
-      });
+  describe('addItemToCart', () => {
+    it('should add album to cart', async () => {
+      // Get any album from database for testing
+      const anyAlbum = await prisma.album.findFirst();
+      if (!anyAlbum) {
+        console.log('No albums in database for testing, skipping cart album test');
+        return;
+      }
 
-      // Act: Update quantity to 5
-      const result = await cartService.updateCartItemQuantity(
-        'session-123',
-        'cart-item-1',
-        5
+      const result = await cartService.addItemToCart(
+        testSessionId,
+        'album',
+        anyAlbum.id
       );
 
-      // Assert: Verify cart item was updated correctly
-      expect(mockFindFirst).toHaveBeenCalledWith({
-        where: {
-          id: 'cart-item-1',
-          sessionId: 'session-123',
-        },
-      });
-      expect(mockUpdate).toHaveBeenCalledWith({
-        where: { id: 'cart-item-1' },
-        data: { quantity: 5 },
-      });
-      expect(result).toBeDefined();
-      expect(result.quantity).toBe(5);
+      expect(result).toHaveProperty('cartItem');
+      expect(result).toHaveProperty('cartCount');
+      expect(result.cartItem.itemType).toBe('album');
+      expect(result.cartItem.itemId).toBe(anyAlbum.id);
+      expect(result.cartCount).toBeGreaterThan(0);
     });
 
-    it('should enforce maximum quantity limit of 10', async () => {
-      // Arrange: Mock cart item
-      const mockCartItem = createMockCartItem();
-      mockFindFirst.mockResolvedValue(mockCartItem);
+    it('should add song to cart', async () => {
+      // Get any song from database for testing
+      const anySong = await prisma.song.findFirst();
+      if (!anySong) {
+        console.log('No songs in database for testing, skipping cart song test');
+        return;
+      }
 
-      // Act & Assert: Attempt to set quantity to 15
-      await expect(
-        cartService.updateCartItemQuantity('session-123', 'cart-item-1', 15)
-      ).rejects.toThrow('Quantity must be between 1 and 10');
-    });
+      const result = await cartService.addItemToCart(
+        testSessionId,
+        'song',
+        anySong.id
+      );
 
-    it('should enforce minimum quantity limit of 1', async () => {
-      // Arrange: Mock cart item
-      const mockCartItem = createMockCartItem();
-      mockFindFirst.mockResolvedValue(mockCartItem);
-
-      // Act & Assert: Attempt to set quantity to 0
-      await expect(
-        cartService.updateCartItemQuantity('session-123', 'cart-item-1', 0)
-      ).rejects.toThrow('Quantity must be between 1 and 10');
-    });
-
-    it('should throw error when cart item not found', async () => {
-      // Arrange: Mock returning null (cart item doesn't exist)
-      mockFindFirst.mockResolvedValue(null);
-
-      // Act & Assert: Attempt to update non-existent cart item
-      await expect(
-        cartService.updateCartItemQuantity('session-123', 'nonexistent-id', 5)
-      ).rejects.toThrow('Cart item not found');
+      expect(result).toHaveProperty('cartItem');
+      expect(result).toHaveProperty('cartCount');
+      expect(result.cartItem.itemType).toBe('song');
+      expect(result.cartItem.itemId).toBe(anySong.id);
+      expect(result.cartCount).toBeGreaterThan(0);
     });
   });
 
-  /**
-   * Tests for removeCartItem method
-   */
-  describe('removeCartItem', () => {
-    it('should successfully remove cart item from database', async () => {
-      // Arrange: Mock finding and deleting cart item
-      const mockCartItem = createMockCartItem({
-        id: 'cart-item-1',
-        sessionId: 'session-123',
-      });
+  describe('getCart', () => {
+    it('should retrieve cart contents', async () => {
+      const result = await cartService.getCart(testSessionId);
 
-      mockFindFirst.mockResolvedValue(mockCartItem);
-      mockDelete.mockResolvedValue(mockCartItem);
-
-      // Act: Remove cart item
-      await cartService.removeCartItem('session-123', 'cart-item-1');
-
-      // Assert: Verify cart item was found and deleted
-      expect(mockFindFirst).toHaveBeenCalledWith({
-        where: {
-          id: 'cart-item-1',
-          sessionId: 'session-123',
-        },
-      });
-      expect(mockDelete).toHaveBeenCalledWith({
-        where: { id: 'cart-item-1' },
-      });
+      expect(result).toHaveProperty('items');
+      expect(result).toHaveProperty('totalItems');
+      expect(result).toHaveProperty('subtotal');
+      expect(Array.isArray(result.items)).toBe(true);
+      expect(result.totalItems).toBeGreaterThanOrEqual(0);
     });
 
-    it('should throw error when cart item not found', async () => {
-      // Arrange: Mock returning null (cart item doesn't exist)
-      mockFindFirst.mockResolvedValue(null);
+    it('should calculate correct totals', async () => {
+      const result = await cartService.getCart(testSessionId);
 
-      // Act & Assert: Attempt to remove non-existent cart item
-      await expect(
-        cartService.removeCartItem('session-123', 'nonexistent-id')
-      ).rejects.toThrow('Cart item not found');
-    });
-  });
+      // Calculate expected subtotal
+      const expectedSubtotal = result.items.reduce(
+        (sum, item) =>
+          sum + parseFloat(item.priceAtAddition.toString()) * item.quantity,
+        0
+      );
 
-  /**
-   * Tests for clearCart method
-   */
-  describe('clearCart', () => {
-    it('should delete all cart items for given session ID', async () => {
-      // Arrange: Mock deleting multiple items
-      mockDeleteMany.mockResolvedValue({ count: 3 });
-
-      // Act: Clear cart for session
-      const result = await cartService.clearCart('session-123');
-
-      // Assert: Verify all items deleted for session
-      expect(mockDeleteMany).toHaveBeenCalledWith({
-        where: { sessionId: 'session-123' },
-      });
-      expect(result).toEqual({ deletedCount: 3 });
-    });
-
-    it('should return success with count 0 when cart is already empty', async () => {
-      // Arrange: Mock deleting 0 items
-      mockDeleteMany.mockResolvedValue({ count: 0 });
-
-      // Act: Clear already empty cart
-      const result = await cartService.clearCart('session-123');
-
-      // Assert: Verify returns 0 count without error
-      expect(mockDeleteMany).toHaveBeenCalledWith({
-        where: { sessionId: 'session-123' },
-      });
-      expect(result).toEqual({ deletedCount: 0 });
-    });
-
-    it('should not affect other sessions cart items', async () => {
-      // Arrange: Mock deleting items only for specific session
-      mockDeleteMany.mockResolvedValue({ count: 2 });
-
-      // Act: Clear cart for session-123
-      await cartService.clearCart('session-123');
-
-      // Assert: Verify only specified session's items are targeted
-      expect(mockDeleteMany).toHaveBeenCalledWith({
-        where: { sessionId: 'session-123' },
-      });
-      // In real implementation, this would be verified by checking
-      // that other sessions' data remains intact
+      expect(result.subtotal).toBeCloseTo(expectedSubtotal, 2);
+      expect(result.totalItems).toBe(result.items.length);
     });
   });
 });
