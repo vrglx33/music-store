@@ -9,6 +9,7 @@ import '@testing-library/jest-dom';
 import SongDetailPage from '../SongDetailPage';
 import { SongDetail } from '../../../shared/types/song';
 import { SongArtistRole } from '../../../shared/types/artist';
+import * as AudioPlayerContextModule from '../../context/AudioPlayerContext';
 
 // Mock modules
 jest.mock('../../components/AudioPlayer', () => {
@@ -31,12 +32,8 @@ jest.mock('../../components/Footer', () => {
   };
 });
 
-jest.mock('../../hooks/useAudioPlayer', () => ({
-  useAudioPlayer: () => ({
-    loadSong: jest.fn(),
-    play: jest.fn(),
-    pause: jest.fn(),
-  }),
+jest.mock('../../context/AudioPlayerContext', () => ({
+  useAudioPlayerContext: jest.fn(),
 }));
 
 describe('SongDetailPage', () => {
@@ -74,6 +71,20 @@ describe('SongDetailPage', () => {
       },
     ],
   };
+
+  const mockAudioContext = {
+    loadSong: jest.fn(),
+    play: jest.fn(),
+    pause: jest.fn(),
+    // Other properties are not used directly in this component
+  } as any;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (AudioPlayerContextModule.useAudioPlayerContext as jest.Mock).mockReturnValue(
+      mockAudioContext
+    );
+  });
 
   test('renders song detail page with all metadata', () => {
     render(<SongDetailPage initialData={mockSongData} />);

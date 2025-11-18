@@ -7,10 +7,10 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import AudioPlayer from '../AudioPlayer';
-import * as useAudioPlayerModule from '../../hooks/useAudioPlayer';
+import * as AudioPlayerContextModule from '../../context/AudioPlayerContext';
 
-// Mock the useAudioPlayer hook
-jest.mock('../../hooks/useAudioPlayer');
+// Mock the useAudioPlayerContext hook used by AudioPlayer
+jest.mock('../../context/AudioPlayerContext');
 
 describe('AudioPlayer', () => {
   const mockSong = {
@@ -39,7 +39,7 @@ describe('AudioPlayer', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useAudioPlayerModule.useAudioPlayer as jest.Mock).mockReturnValue(
+    (AudioPlayerContextModule.useAudioPlayerContext as jest.Mock).mockReturnValue(
       mockUseAudioPlayer
     );
   });
@@ -65,7 +65,7 @@ describe('AudioPlayer', () => {
     expect(mockUseAudioPlayer.play).toHaveBeenCalledTimes(1);
 
     // Update mock to show playing state
-    (useAudioPlayerModule.useAudioPlayer as jest.Mock).mockReturnValue({
+    (AudioPlayerContextModule.useAudioPlayerContext as jest.Mock).mockReturnValue({
       ...mockUseAudioPlayer,
       isPlaying: true,
     });
@@ -125,7 +125,7 @@ describe('AudioPlayer', () => {
   });
 
   test('displays loading state', () => {
-    (useAudioPlayerModule.useAudioPlayer as jest.Mock).mockReturnValue({
+    (AudioPlayerContextModule.useAudioPlayerContext as jest.Mock).mockReturnValue({
       ...mockUseAudioPlayer,
       isLoading: true,
     });
@@ -138,7 +138,7 @@ describe('AudioPlayer', () => {
 
   test('displays error message with retry button', () => {
     const errorMessage = 'Failed to load audio file';
-    (useAudioPlayerModule.useAudioPlayer as jest.Mock).mockReturnValue({
+    (AudioPlayerContextModule.useAudioPlayerContext as jest.Mock).mockReturnValue({
       ...mockUseAudioPlayer,
       error: errorMessage,
     });
@@ -154,7 +154,7 @@ describe('AudioPlayer', () => {
   });
 
   test('does not render when no song is loaded', () => {
-    (useAudioPlayerModule.useAudioPlayer as jest.Mock).mockReturnValue({
+    (AudioPlayerContextModule.useAudioPlayerContext as jest.Mock).mockReturnValue({
       ...mockUseAudioPlayer,
       currentSong: null,
     });
