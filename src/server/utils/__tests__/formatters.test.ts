@@ -53,4 +53,33 @@ describe('formatPrice', () => {
     expect(formatPrice(Infinity)).toBe('$0.00');
     expect(formatPrice(NaN)).toBe('$0.00');
   });
+
+  it('should correctly round prices without double-rounding', () => {
+    // Test cases that would fail with double-rounding bug
+    // 9.995 should round to $10.00 (not $9.99 from double rounding)
+    expect(formatPrice(9.995)).toBe('$10.00');
+    
+    // 9.996 should round to $10.00
+    expect(formatPrice(9.996)).toBe('$10.00');
+    
+    // 9.994 should round to $9.99
+    expect(formatPrice(9.994)).toBe('$9.99');
+    
+    // 9.991 should round to $9.99
+    expect(formatPrice(9.991)).toBe('$9.99');
+    
+    // 1.005 should round to $1.01 (not $1.00 from double rounding)
+    expect(formatPrice(1.005)).toBe('$1.01');
+    
+    // 1.004 should round to $1.00
+    expect(formatPrice(1.004)).toBe('$1.00');
+    
+    // 99.995 should round to $100.00
+    expect(formatPrice(99.995)).toBe('$100.00');
+    
+    // Verify standard rounding still works
+    expect(formatPrice(19.999)).toBe('$20.00');
+    expect(formatPrice(19.99)).toBe('$19.99');
+    expect(formatPrice(19.9)).toBe('$19.90');
+  });
 });
