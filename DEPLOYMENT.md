@@ -1,6 +1,6 @@
 # Music Store Platform - Deployment Guide
 
-This guide covers multiple deployment options for the Music Store Platform.
+This guide covers multiple deployment options for the Music Store Platform....
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
